@@ -1,0 +1,3 @@
+<apex:page standardController="Contact">
+  You do not have permission to delete this Contact. Change the status to invalid, so an Admin can review.
+</apex:page>

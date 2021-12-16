@@ -1,0 +1,589 @@
+<apex:page docType="html-5.0" standardStylesheets="FALSE" controller="QuoteDetailController" showHeader="false" sidebar="false"
+    cache="false" action="{!loadDetail}">
+    <apex:composition template="{!$Site.Template}">
+        <apex:define name="body">
+            <style>
+                td,
+                th {
+                    vertical-align: top;
+                    text-align: left;
+                }
+
+                .pc_quote_amount_box {
+                    text-align: right;
+                    width: 100%;
+                    border: none;
+                }
+
+                .pc_quote_amount_box labelCol {
+                    font-weight: bold;
+                    text-align: right;
+                }
+
+                .totals_box {
+                    margin-left: auto;
+                    margin-right: 5px;
+                    width: 250px;
+                }
+            </style>
+            <apex:form id="idform">
+                <apex:inputHidden value="{!accountValidated}" id="idaccountValidated" />
+                <apex:inputHidden value="{!message}" id="idmessage" />
+                <apex:actionFunction name="rerenderidform" rerender="idform,theForm" action="{!renderMessage}" />
+            </apex:form>
+            <div id="pc_lang_{!HTMLENCODE($CurrentPage.parameters.lang)}">
+                <apex:outputPanel Id="PopupModal">
+                    <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}">
+                        <div class="demo-only" style="height: 640px;">
+                            <section tabindex="-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                    <header class="slds-modal__header">
+                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Quote Details</h2>
+                                    </header>
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                        <!-- Messages -->
+                                        <apex:pageMessages />
+                                    </div>
+                                    <footer class="slds-modal__footer">
+                                        <apex:form id="ModalForm" styleClass="">
+                                            <apex:commandButton id="popupcancel" styleClass="slds-button slds-button_neutral" rendered="{!modalClose}" action="{!closePopup}"
+                                                value="Close" />
+                                        </apex:form>
+                                    </footer>
+                                </div>
+                            </section>
+                            <div class="slds-backdrop slds-backdrop_open"></div>
+                        </div>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+
+                <div>
+                    <div class="slds-text-heading_medium slds-p-top_medium slds-p-bottom_medium" id="mainDivStart">
+                        <h1>Service Agreement Quote for:
+                            <strong> {!quote.SBQQ__Account__r.name} ({!quote.Name})</strong>
+                        </h1>
+                    </div>
+
+                    <div class="pc_page_content">
+                        <div class="pc_page_content_inner">
+                            <apex:form id="quoteApprovalForm" styleClass="pc_quote_review_form">
+                                <apex:outputPanel style="font-weight:bold; font-size: 1rem;">
+                                    <h2>
+                                        Company Details
+                                    </h2>
+                                </apex:outputPanel>
+                                <br/>
+                                <apex:outputPanel rendered="true">
+                                    <font face="Arial">
+
+                                        <table border="0" width="100%" id="table1">
+                                            <tr>
+                                                <apex:includeLightning />
+
+
+                                                <script>
+                                                    $Lightning.use("c:CustomerDetailApp", function () {
+                                                        $Lightning.createComponent("c:CustomerDetail",
+                                                            {
+                                                                "recordId": "{!quote.SBQQ__Account__c}",
+                                                                "quoteId": "{!quote.Id}"
+                                                            },
+                                                            "lightning",
+                                                            function (cmp) {
+                                                                console.log('Lightning out -->Component has been loaded.');
+                                                                $A.eventService.addHandler({ "event": "c:lightningAppExternalEvent", "handler": myFunctionFromVisualforce });
+                                                            });
+
+                                                    });
+                                                    function myFunctionFromVisualforce(event) {
+                                                        console.log('This message is from visualforce function');
+                                                        console.log(`Data which is coming from lightning component: accountValidated : ${event.getParam('accountValidated')}, ${event.getParam('message')}`);
+
+                                                        document.getElementById('{!$Component.idform.idmessage}').value = event.getParam('message');
+                                                        document.getElementById('{!$Component.idform.idaccountValidated}').value = event.getParam('accountValidated');
+                                                        rerenderidform();
+                                                        //debugger;
+                                                    }                                                    
+                                                </script>
+                                                <div id="lightning" />
+                                            </tr>
+
+                                            <!--  <tr>
+                                            <td colspan="5">
+                                            <h2>Address</h2>
+                                            </td>
+                                            </tr>
+                                            <tr>
+                                            <td width="200" style="text-align:right">Street:</td>
+                                            <td>{!quote.SBQQ__Account__r.BillingStreet}</td>
+                                            <td width="200" style="text-align:right;padding-right:5px;">City:</td>
+                                            <td>{!quote.SBQQ__Account__r.BillingCity}</td>
+                                            </tr>
+                                            <tr>
+                                            <td style="text-align:right;padding-right:5px;">State:</td>
+                                            <td>{!quote.SBQQ__Account__r.BillingState}</td>
+                                            <td style="text-align:right">Zip:</td>
+                                            <td>{!quote.SBQQ__Account__r.BillingPostalCode}</td>
+                                            </tr>
+                                            <tr>
+                                            <td style="text-align:right;padding-right:5px;">Phone:</td>
+                                            <td>{!quote.SBQQ__Account__r.Phone}</td>
+                                            </tr> -->
+                                        </table>
+
+                                        <!-- <table border="0" width="100%">
+                                            <tr>
+                                            <td padding-right="5px" style="text-align:right">Broker MC:</td>
+                                            <td>{!quote.SBQQ__Account__r.BrokerMC__c}</td>
+                                            <td style="text-align:right;padding-right:5px;">Carrier MC:</td>
+                                            <td>{!quote.SBQQ__Account__r.CarrierMC__c}</td>
+                                            <td style="text-align:right;padding-right:5px;">Frieght Forwarder#:</td>
+                                            <td>${!quote.SBQQ__Account__r.FreightForwarder__c}</td>
+                                            </tr>
+                                            <hr/>
+                                            <tr>
+                                            <td style="text-align:right;padding-right:5px;">Intrastate ID:</td>
+                                            <td>{!quote.SBQQ__Account__r.IntrastateID__c}</td>
+                                            <td style="text-align:right;padding-right:5px;">Instrastate State: </td>
+                                            <td>{!quote.SBQQ__Account__r.IntrastateIDState__c}</td>
+                                            <td style="text-align:right;padding-right:5px;">Broker DOT:</td>
+                                            <td>{!quote.SBQQ__Account__r.BrokerDOT__c}</td>
+                                            </tr>
+                                            </table>
+                                        <hr/>-->
+
+                                        <!-- Contact Detail : Begin 
+                                        <apex:outputPanel style="font-weight:bold; font-size: 1rem;">
+                                            <h2>
+                                                Contact Details
+                                            </h2>
+                                        </apex:outputPanel>
+                                        <br/>
+                                        -->
+                                        <!-- Contact / Signer Detail 
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <div class="slds-col slds-size_1-of-2 slds-text-title_bold slds-p-left_xx-large ">
+                                                <span>Billing Contact </span>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-2 slds-text-title_bold slds-p-left_xx-large ">
+                                                <span>Agreement Signer </span>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Name: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>{!quote.Billing_Contact__r.firstname}&nbsp;{!quote.Billing_Contact__r.lastname}</div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Name: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6  ">
+                                                <div>{!quote.Agreement_Signer__r.FirstName}&nbsp;{!quote.Agreement_Signer__r.LastName}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Phone #: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>{!quote.Billing_Contact__r.phone}</div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Phone #: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6  ">
+                                                <div>{!quote.Agreement_Signer__r.phone} </div>
+                                            </div>
+                                        </div>
+                                        -->
+                                        <!--
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Authority Level: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>I can buy this</div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Authority Level: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6  ">
+                                                <div>I can agree </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="slds-grid slds-p-around_xx-small slds-border_bottom">
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Billing Address: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>{!quote.sbqq__account__r.BillingStreet}</div>
+                                                <div>Los Angeles, CA 92933</div>
+                                            </div>
+                                        </div>
+                                        -->
+                                        <!-- Contact Detail : End -->
+
+                                        <!--  <table border="0" width="100%" id="table1">
+                                            <tr>
+                                                <td colspan="5">
+                                                    <h2>Contact Details</h2>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h3>Primary Contact</h3>
+                                                </td>
+                                                <td colspan="2">
+                                                    <h3>Agreement Signer</h3>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="200" style="text-align:right">Name:</td>
+                                                <td>{!PrimaryContact.FirstName}&nbsp;{!PrimaryContact.LastName}</td>
+                                                <td width="200" style="text-align:right;padding-right:5px;">Name:</td>
+                                                <td>{!AgreementContact.FirstName}&nbsp;{!AgreementContact.LastName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Phone #:</td>
+                                                <td>{!PrimaryContact.phone}</td>
+                                                <td style="text-align:right">Phone #:</td>
+                                                <td>{!AgreementContact.phone}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Email:</td>
+                                                <td>{!PrimaryContact.email}</td>
+                                                <td style="text-align:right">Email</td>
+                                                <td>{!AgreementContact.email}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Authority Level:</td>
+                                                <td>I can buy this</td>
+                                                <td style="text-align:right">Authority Level:</td>
+                                                <td>I can agree</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Billing Address:</td>
+                                                <td>3838 Street Way</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;"></td>
+                                                <td>Los Angeles, CA 92933</td>
+                                            </tr>
+                                        </table>  -->
+                                    </font>
+                                    <apex:messages />
+                                    <!-- <div class="slds-p-bottom_large"></div> -->
+                                    <apex:outputPanel rendered="{!hasPM}">
+                                        <!-- Billing Detail (Changed to Credit Card) :  Begin -->
+                                        <apex:outputPanel style="font-weight:bold; font-size: 1rem;">
+                                            <h2>
+                                                Credit Card Details
+                                            </h2>
+                                        </apex:outputPanel>
+                                        <br/>
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <!-- (Remove first and last name)
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Billing Contact: </span>
+                                            </div>
+
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>
+                                                    <apex:outputText rendered="{!hasPM}" value="{!paymentMethod.blng__BillingFirstName__c} {!paymentMethod.blng__BillingLastName__c}"></apex:outputText>
+                                                </div>
+                                            </div>
+                                            -->
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Credit card on file:</span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>
+                                                    <apex:outputText value="{!paymentMethod.blng__CardType__c}  :   {!paymentMethod.blng__CardNumber__c}"></apex:outputText> &nbsp;&nbsp;
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="slds-grid slds-p-around_xx-small slds-border_bottom">
+                                            <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+                                                <span>Credit Card Address: </span>
+                                            </div>
+                                            <div class="slds-col slds-size_2-of-6 ">
+                                                <div>{!paymentMethod.blng__BillingStreet__c}</div>
+                                                <div>{!paymentMethod.blng__BillingCity__c}, {!paymentMethod.blng__BillingStateProvince__c}
+                                                    {!paymentMethod.blng__BillingZipPostal__c}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Billing Detail :  End 
+                                        <table border="0" width="100%" id="table1">
+                                            <tr>
+                                                <td colspan="5">
+                                                    <h2>Billing Details</h2>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Billing Contact:</td>
+                                                <td><apex:outputText rendered="{!hasPM}" value="{!paymentMethod.blng__BillingFirstName__c} {!paymentMethod.blng__BillingLastName__c}"></apex:outputText></td>
+                                                <td>The existing recurring credit card that will be charged:</td>
+                                                
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Phone #:</td>
+                                                <td><apex:outputText value="{!paymentMethod.blng__BillingPhone__c}"></apex:outputText></td>&nbsp;
+                                                <td><apex:outputText value="{!paymentMethod.blng__CardType__c}  :   {!paymentMethod.blng__CardNumber__c}"></apex:outputText> &nbsp;&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Email:</td>
+                                                <td>{!paymentMethod.blng__BillingEmail__c}</td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Billing Address:</td>
+                                                <td>{!paymentMethod.blng__BillingStreet__c}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;"></td>
+                                                <td>{!paymentMethod.blng__BillingCity__c}, {!paymentMethod.blng__BillingStateProvince__c} {!paymentMethod.blng__BillingZipPostal__c}</td>
+                                            </tr>
+                                        </table>  -->
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!!hasPM}">
+                                        <!-- Billing Detail (Updated to Credit Card Details) :  Begin -->
+                                        <apex:outputPanel style="font-weight:bold; font-size: 1rem;">
+                                            <h2>
+                                                Credit Card Details
+                                            </h2>
+                                        </apex:outputPanel>
+                                        <br/>
+
+                                        <div class="slds-grid slds-p-top_small ">
+
+                                            <div class="slds-grid slds-size_1-of-2  slds-grid_vertical slds-box slds-box slds-box-small">
+                                                <!--(Remove the title)
+                                                <div class="slds-grid slds-size_1-of-2 slds-text-title_bold slds-p-left_xx-large ">
+                                                    <span>Credit Card Information </span>
+                                                </div>
+                                                -->
+                                                <div class="slds-grid slds-p-left_xx-large slds-p-top_large">
+                                                    <div class="slds-col slds-size_1-of-2   ">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr> Name on Card: </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2 ">
+                                                        <div class="">
+                                                            <apex:inputField value="{!paymentMethod.blng__Nameoncard__c}"></apex:inputField>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-grid  slds-p-left_xx-large slds-p-top_large">
+
+                                                    <div class="slds-col slds-size_1-of-2 ">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr>Credit Card #: </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2 ">
+                                                        <div class="">
+                                                            <apex:inputText value="{!paymentMethod.blng__CardNumber__c}"></apex:inputText>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-grid  slds-p-left_xx-large slds-p-top_large">
+
+                                                    <div class="slds-col slds-size_1-of-2  ">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr>Expiration Date (Month/Year): </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2 ">
+                                                        <div class="">
+                                                            <apex:inputField value="{!paymentMethod.blng__CardExpirationMonth__c}"></apex:inputField>
+                                                            <span> / </span>
+                                                            <apex:inputField value="{!paymentMethod.blng__CardExpirationYear__c}"></apex:inputField>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="slds-grid slds-p-left_xx-large slds-p-top_large">
+
+                                                    <div class="slds-col slds-size_1-of-2   ">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr>CVV: </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2 ">
+                                                        <div class="">
+                                                            <apex:inputField value="{!paymentMethod.blng__CVV__c}"></apex:inputField>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="slds-grid slds-size_1-of-2  slds-grid_vertical slds-box slds-box slds-box-small">
+                                                <!-- (Remove first and last name)
+                                                <div class="slds-grid slds-size_1-of-2 slds-p-left_xx-large">
+                                                    <div class="slds-col slds-size_1-of-3  ">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr>First Name: </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_2-of-3 ">
+                                                        <div class="">
+                                                            <apex:inputText rendered="{!!hasPM}" value="{!paymentMethod.blng__BillingFirstName__c}"></apex:inputText>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-3 slds-p-left_small">
+                                                        <div class="">
+                                                            <abbr class="slds-required" title="required">* </abbr>Last Name: </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_2-of-3 ">
+                                                        <div class="">
+                                                            <apex:inputText value="{!paymentMethod.blng__BillingLastName__c}"></apex:inputText>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                -->
+
+                                                <div class="slds-col slds-size_1-of-3  slds-p-left_xx-large slds-p-top_x-small">
+                                                    <div class="">
+                                                        <abbr class="slds-required" title="required">* </abbr>Credit Card Address: </div>
+                                                </div>
+                                                <div class="slds-col slds-size_2-of-3 ">
+                                                    <div class="">
+
+                                                        <fieldset class="slds-form-element slds-form-element_compound slds-form-element_address slds-p-left_xx-large">
+                                                            <div class="slds-form-element__control">
+                                                                <div class="slds-form-element__row">
+                                                                    <div class="slds-size_1-of-1">
+                                                                        <div class="slds-form-element">
+                                                                            <label class="slds-form-element__label">Street</label>
+                                                                            <div class="slds-form-element__control">
+                                                                                <apex:inputField value="{!paymentMethod.blng__BillingStreet__c}"></apex:inputField>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="slds-form-element__row">
+                                                                    <div class="slds-size_4-of-6">
+                                                                        <div class="slds-form-element">
+                                                                            <label class="slds-form-element__label">City</label>
+                                                                            <div class="slds-form-element__control">
+                                                                                <apex:inputField value="{!paymentMethod.blng__BillingCity__c}"></apex:inputField>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="slds-size_4-of-6">
+                                                                        <div class="slds-form-element">
+                                                                            <label class="slds-form-element__label" for="form-element-id-06">State</label>
+                                                                            <div class="slds-form-element__control">
+                                                                                <apex:inputField value="{!paymentMethod.blng__BillingStateProvince__c}"></apex:inputField>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="slds-form-element__row">
+                                                                    <div class="slds-size_4-of-6">
+                                                                        <div class="slds-form-element">
+                                                                            <label class="slds-form-element__label">Zip</label>
+                                                                            <div class="slds-form-element__control">
+                                                                                <apex:inputField value="{!paymentMethod.blng__BillingZipPostal__c}"></apex:inputField>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+                                        <!-- Billing Detail :  End 
+                                            <div class="slds-col slds-size_2-of-12 ">
+                                                <apex:inputText rendered="{!!hasPM}" value="{!paymentMethod.blng__BillingPhone__c}"></apex:inputText>                                               </div>
+                                        </div>
+
+                                        
+                                        <table border="0" width="100%" id="table1">
+                                            <tr>
+                                                <td colspan="5">
+                                                    <h2>Billing Details</h2>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Billing Contact:</td>
+                                                <td>First Name: <apex:inputText rendered="{!!hasPM}" value="{!paymentMethod.blng__BillingFirstName__c}"></apex:inputText>
+                                                    Last Name: <apex:inputText value="{!paymentMethod.blng__BillingLastName__c}"></apex:inputText></td>
+                                                <td>Card Type:  <apex:inputField value="{!paymentMethod.blng__CardType__c}"></apex:inputField>Card Number:  <apex:inputText value="{!paymentMethod.blng__CardNumber__c}"></apex:inputText></td>
+                                                
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Phone #:</td>
+                                                <td><apex:inputText rendered="{!!hasPM}" value="{!paymentMethod.blng__BillingPhone__c}"></apex:inputText></td>
+                                                <td> Month<apex:inputField value="{!paymentMethod.blng__CardExpirationMonth__c}"></apex:inputField>
+                                                    Year: <apex:inputField value="{!paymentMethod.blng__CardExpirationYear__c}"></apex:inputField>
+                                                    CVV <apex:inputField value="{!paymentMethod.blng__CVV__c}"></apex:inputField>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Email:</td>
+                                                <td><apex:inputField value="{!paymentMethod.blng__BillingEmail__c}"></apex:inputField></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>                    
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">Billing Street:</td>
+                                                <td><apex:inputField value="{!paymentMethod.blng__BillingStreet__c}"></apex:inputField>
+                                                    
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:right;padding-right:5px;">City, State Zip</td>
+                                                <td><apex:inputField value="{!paymentMethod.blng__BillingCity__c}"></apex:inputField>, <apex:inputField value="{!paymentMethod.blng__BillingStateProvince__c}"></apex:inputField> 
+                                                    <apex:inputField value="{!paymentMethod.blng__BillingZipPostal__c}"></apex:inputField></td>
+                                            </tr>
+                                        </table>
+                                        <div class="slds-grid slds-p-around_xx-small">
+                                            <div class="slds-col  slds-p-left_xx-large" align="right">
+                                                <apex:commandButton action="{!getToken}" value="Submit" />
+                                            </div>
+                                        </div>
+ -->
+                                    </apex:outputPanel>
+
+                                </apex:outputPanel>
+
+                                <apex:pageMessages id="theForm"></apex:pageMessages>
+                                <div class="slds-p-around_xx-small" align="right">
+                                    <apex:commandButton id="cancel" value="Previous" action="{!prev}" />
+                                    <apex:commandButton id="next" value="Next" action="{!next}" reRender="theForm" />
+                                </div>
+
+                            </apex:form>
+
+                        </div>
+                        <!--  pc_page_content_inner -->
+
+                    </div>
+                    <!--  pc_page_content -->
+                </div>
+                <!--  pc_page -->
+            </div>
+
+        </apex:define>
+    </apex:composition>
+</apex:page>

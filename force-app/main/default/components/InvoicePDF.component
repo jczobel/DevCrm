@@ -1,0 +1,217 @@
+<apex:component controller="InvoicePDFController" access="global">
+
+    <head>
+        <style type="text/css">
+            .title {
+                font-size: 50px;
+                color: #DCDCDC;
+            }
+
+            th {
+                text-align: left;
+                padding: 8px;
+                vertical-align: auto;
+            }
+
+            td {
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                padding: 8px;
+                vertical-align: top;
+            }
+
+            .container {
+                width: 90%;
+                margin: auto;
+                overflow: hidden;
+            }
+
+            .alignleft {
+                float: left;
+            }
+
+            .alignright {
+                float: right;
+            }
+
+            .text-bold {
+                font-weight: bold;
+            }
+
+            .text-size_medium {
+                font-size: medium;
+            }
+
+            #totalAmount {
+                width: auto;
+                margin-top: 15px;
+                padding: 5px 5px 5px 5px;
+                font-weight: bold;
+                border-style: solid;
+            }
+        </style>
+    </head>
+    <apex:attribute access="global" assignTo="{!invoiceId}" name="InvId" type="String" required="true" description="Invoice Id"
+    />
+
+    <section id="InvoiceInfo">
+        <div class="container">
+            <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <th style="width:50%">
+                        <!--DAT Logo -->
+                        <div class="alignleft" id="branding">
+                            <apex:image id="theImage" value="{!$Resource.DATLogo}" />
+                        </div>
+                    </th>
+                    <th style="width:50%">
+                        <!--Invoice / PO information -->
+                        <div class="alignright">
+                            <div class="title"> INVOICE </div>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <td style="width:50%">
+                        <!--DAT information -->
+                        <div class="">
+                            <font face="Arial">
+                                <br/> Box 3801
+                                <br/> PO Box 783801
+                                <br/> Philadelphia, PA 19178-3801
+                                <br/>
+                                <br/> Question?
+                                <br/> Please Call 1 800 547 5417
+                            </font>
+                        </div>
+
+                        <!-- Customer Info: Company Name, Account No, Billing Contact, Billing Address -->
+                        <div class="">
+                            <br/>
+                            <span class="text-bold text-size_medium">
+                                <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.name} " />
+                            </span>
+                            <br/>
+                            <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.BillingStreet} " />
+                            <br/>
+                            <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.BillingCity}" />, &nbsp;
+                            <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.BillingState}" />&nbsp;-&nbsp;
+                            <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.BillingPostalCode}" />
+                            <br/>
+                            <apex:outputField label="Account" value=" {!Invoice.blng__Account__r.BillingCountry}" />.
+                            <br/>
+
+                        </div>
+
+                    </td>
+                    <td style="width:50%">
+                        <!--Invoice / PO information Invoice No, PO No, Past Due Amount, Current Invoice Amount, Total Amount Due, Due By date  -->
+                        <div class="alignright">
+                            <font face="Arial">
+                                <br/> Invoice No :
+                                <apex:outputField value="{!Invoice.name}" />
+                                <br/> PO No :
+                                <br/>
+                                <br/> Past Due Amount :
+                                <br/> Current Invoice Amount :
+                                <br/>
+                                <div Id="totalAmount">
+                                    Total Amount Due :
+                                    <apex:outputField label="Amount" value=" {!Invoice.blng__TotalAmount__c}" />
+                                    <br/>Due By Date :
+                                    <apex:outputField label="Due Date" value="{!Invoice.blng__DueDate__c}" />
+                                </div>
+                            </font>
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <section id="InvoiceLine">
+            <div class="container">
+                <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr class="">
+                            <th class="">Name</th>
+                            <th class="">Account Name</th>
+                            <th class="">Service Date</th>
+                            <th class="currency_column">Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!Invoice.blng__InvoiceInvoiceLines__r}" var="line">
+                            <apex:outputPanel >
+                                <tr class="slds-text-heading_small slds-p-bottom_small">
+                                    <td>{!line.name}</td>
+                                    <td>{!line.blng__OrderProduct__r.order.account.name}</td>
+                                    <td>
+                                        <apex:outputText value=" {0,date,MM/dd }">
+                                            <apex:param value="{!line.blng__StartDate__c}" />
+                                        </apex:outputText>
+                                        <span> - </span>
+                                        <apex:outputText value=" {0,date,MM/dd }">
+                                            <apex:param value="{!line.blng__EndDate__c}" />
+                                        </apex:outputText>
+
+                                    </td>
+                                    <td>
+                                        <apex:outputText value="{0, Number, Currency}">
+                                            <apex:param value="{!line.blng__TotalAmount__c}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+
+                <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr class="">
+                            <th class="">Name</th>
+                            <th class="">Account Name</th>
+                            <th class="">Service Date</th>
+                            <th class="currency_column">Total Price</th>
+                        </tr>
+                    </thead>
+                    <apex:repeat value="{!billToAccountIdlst}" var="billToAccount">
+                        <apex:outputPanel >
+                            <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr class="slds-text-heading_small slds-p-bottom_small">
+                                    {!accountOrderIds[billToAccount]}
+                                </tr>
+
+                                <apex:repeat value="{!accountOrderIds[billToAccount]}" var="ln">
+                                    <tr class="slds-text-heading_small slds-p-bottom_small">
+                                        <td>{!ln.name}</td>
+                                        <td>{!ln.blng__OrderProduct__r.order.account.name}</td>
+                                        <td>
+                                            <apex:outputText value=" {0,date,MM/dd }">
+                                                <apex:param value="{!ln.blng__StartDate__c}" />
+                                            </apex:outputText>
+                                            <span> - </span>
+                                            <apex:outputText value=" {0,date,MM/dd }">
+                                                <apex:param value="{!ln.blng__EndDate__c}" />
+                                            </apex:outputText>
+
+                                        </td>
+                                        <td>
+                                            <apex:outputText value="{0, Number, Currency}">
+                                                <apex:param value="{!ln.blng__TotalAmount__c}" />
+                                            </apex:outputText>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </table>
+                        </apex:outputPanel>
+                    </apex:repeat>
+
+                </table>
+
+            </div>
+        </section>
+    </section>
+
+</apex:component>

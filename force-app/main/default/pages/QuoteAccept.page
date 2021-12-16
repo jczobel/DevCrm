@@ -1,0 +1,95 @@
+<apex:page docType="html-5.0" standardStylesheets="FALSE" controller="QuoteAcceptController" showHeader="false" sidebar="false" cache="false">
+    <apex:composition template="{!$Site.Template}">
+        <apex:define name="body">
+            <apex:outputPanel Id="PopupModal" >
+                <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}">
+                    <div class="demo-only" style="height: 640px;">
+                        <section tabindex="-1"  class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <header class="slds-modal__header">
+                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Quote Details</h2>
+                                </header>
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                    <!-- Messages -->
+                                    <apex:pageMessages />
+                                </div>
+                                <footer class="slds-modal__footer">
+                                    <apex:form id="ModalForm" styleClass="">
+                                        <apex:commandButton id="popupcancel" styleClass="slds-button slds-button_neutral" rendered="{!modalClose}" action="{!closePopup}" value="Close" />
+                                    </apex:form>
+                                </footer>                      
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </div>            
+                </apex:outputPanel>
+                </apex:outputPanel>
+            
+            <div class="slds-text-heading_medium slds-p-top_medium slds-p-bottom_medium">
+                <h1>Service Agreement Quote for: <strong> {!quote.SBQQ__Account__r.name} ({!quote.Name})</strong></h1>
+                {!m}
+            </div>
+            
+            <div class="">
+                <apex:form id="quoteApprovalForm" styleClass="">
+                    <table border="0" width="50%" id="table1">
+                        <tr >
+                            <td>
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                    <apex:inputCheckbox disabled="{!quoteAccepted}" value="{!certifyAgreement}"/>
+                                </div>
+                            </td>
+                            <td >
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                    I certify that the information contained in this Agreement is current, accurate, and complete.
+                                    I certify I have the authority to enter into this Agreement for the above named business entity.  
+                                </div>
+                            </td>
+                        </tr>
+                        <tr >
+                            <td>
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                <apex:inputCheckbox disabled="{!quoteAccepted}" value="{!certifyPrivaryPolicy}"/>
+                                </div>
+                            </td>
+                            <td >
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                    I have reviewed the current 
+                                    <a href="https://www.dat.com/web/privacy-policy" target="_blank"> Privacy Policy </a> 
+                                    and <a href="https://www.dat.com/web/terms-and-conditions" target="_blank"> Terms &amp; Conditions </a>  
+                                    of use for this Service and agree to be bound by them, and any updates thereto. All updates shall be posted 
+                                    on the appropriate DAT web site, mobile application, installed application and/or service offering applicable 
+                                    to this Service, which is always accessible via the links entitled 
+                                    <a href="https://www.dat.com/web/terms-and-conditions" target="_blank"> Terms &amp; Conditions </a>  
+                                    and <a href="https://www.dat.com/web/privacy-policy" target="_blank"> Privacy Policy </a>.
+                                </div>
+                            </td>
+                        </tr>
+                        <tr  >
+                            <td>
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                    <apex:inputCheckbox disabled="{!quoteAccepted}" value="{!certifySubscription}"/>
+                                </div>
+                            </td>
+                            <td  >
+                                <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                                    I understand subscription charges will begin on date of activation of Service and shall automatically 
+                                    renew monthly unless terminated in writing upon 30 days advance written notice to DAT.
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class= "slds-p-around_x-small" align="right">
+                        <apex:commandButton id="cancel" styleClass="slds-button slds-button_neutral" value="Previous" action="{!QuoteDetail}" />
+                        <apex:commandButton id="next" styleClass="slds-button slds-button_neutral" disabled="{!quoteAccepted}" value="Accept" action="{!QuoteThankyou}"/>
+                        <!--reRender = "PopupModal" -->
+                    </div>
+                </apex:form>
+                
+            </div>
+        </apex:define>
+    </apex:composition>
+    
+    <script>
+    </script>
+</apex:page>

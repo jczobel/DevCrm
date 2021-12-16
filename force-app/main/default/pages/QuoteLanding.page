@@ -1,0 +1,262 @@
+<apex:page docType="html-5.0" standardStylesheets="true" controller="QuoteLandingController" showHeader="false" sidebar="false"
+    cache="false">
+    <apex:composition template="{!$Site.Template}">
+        <apex:define name="body">
+            <div id="pc_lang_{!HTMLENCODE($CurrentPage.parameters.lang)}">
+                <div class="pc_page">
+                    <!-- pop up panel -->
+                    <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}">
+                        <div class="demo-only" style="height: 640px;">
+                            <section tabindex="-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                    <header class="slds-modal__header">
+                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Quote Details</h2>
+                                    </header>
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                        <!-- Messages -->
+                                        <apex:pageMessages />
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="slds-backdrop slds-backdrop_open"></div>
+                        </div>
+                    </apex:outputPanel>
+
+                    <!-- Quote Header -->
+                    <div class="slds-text-heading_medium slds-p-top_medium slds-p-bottom_medium">
+                        Service Agreement Quote for:
+                        <strong> {!quote.SBQQ__Account__r.name} ({!quote.Name})</strong>
+                    </div>
+
+                    <apex:form id="quoteApprovalForm" styleClass="pc_quote_review_form">
+                        <div class="slds-form slds-p-bottom_small">
+                            <div class="slds-form__row slds-p-left_xx-large slds-p-right_xx-large ">
+                                <div class="slds-form__item ">
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                                        <!-- Prepared By: <sales rep first and last name> -->
+                                        <span class="slds-form-element__label slds-text-color_default slds-text-title_bold ">Prepared by: </span>
+                                        <div class="slds-form-element__control ">
+                                            <div class="slds-form-element__static slds-text-title_bold ">{!quote.owner.name}</div>
+                                        </div>
+
+                                        <!--    Phone #: <sales rep phone > -->
+                                        <span class="slds-form-element__label ">Phone #: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">{!quote.owner.phone}</div>
+                                        </div>
+
+                                        <!--    Email Address: <sales rep email> -->
+                                        <span class="slds-form-element__label ">Email: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">{!quote.owner.email}</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="slds-form__item ">
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                                        <!--    Signer > -->
+                                        <span class="slds-form-element__label slds-text-color_default slds-text-title_bold ">Signer: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static slds-text-title_bold">{!quote.Agreement_Signer__r.name}</div>
+                                        </div>
+
+                                        <!--    Billing Contact  -->
+                                        <span class="slds-form-element__label ">Billing Contact: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">{!quote.Billing_Contact__r.name}</div>
+                                        </div>
+
+                                        <!--    Frieght Matching Contact  -->
+                                        <span class="slds-form-element__label ">Freight Matching Contact: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static">{!quote.Freight_Matching_Contact__r.name}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Commnets -->
+                            <div class="slds-form__row slds-p-left_xx-large slds-p-right_xx-large">
+                                <div class="slds-form__item">
+                                    <!-- Commnets -->
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal slds-form-element_1-col">
+                                        <span class="slds-form-element__label slds-text-color_default slds-text-title_bold">Comments: </span>
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-form-element__static slds-text-longform">{!quote.SBQQ__Notes__c}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!--Lenght of Contract / Offer Valid Through -->
+                            <div class="slds-form__row slds-p-left_xx-large slds-p-right_xx-large">
+                                <div class="slds-form__item">
+                                    <!-- Lenght of Contract-->
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                                        <span class="slds-form-element__label slds-text-color_default slds-text-title_bold">Length of Contract: </span>
+                                        <div class="slds-form-element__control">
+                                            <apex:outputText styleClass="slds-form-element__static slds-text-title_bold" value="{!IF(quote.DAT_Contract_Type__c=='Evergreen' , 'Recurring' , quote.DAT_Contract_Type__c)}"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-form__item">
+                                    <!-- Offer Valid Through -->
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                                        <span class="slds-form-element__label slds-text-color_default slds-text-title_bold">Offer Valid Through: </span>
+                                        <div class="slds-form-element__control slds-text-color_default slds-text-title_bold">
+                                            <apex:outputText value=" {0,date,EEE MMM d, yyyy}">
+                                                <apex:param value="{!quote.SBQQ__ExpirationDate__c}" />
+                                            </apex:outputText>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!--Verbiage-->
+                            <apex:variable var="Evergreen" value="This is a recurring month-to-month subscription." />
+                            <apex:variable var="nonEvergreen" value="Contract will auto-renew at the end of this contract term as a month-to-month subscription. Any discount included in this
+                            contract will terminate at the end of this contract term and will not auto-renew." />
+
+                            <div class="slds-form__row slds-p-left_xx-large slds-p-right_xx-large">
+                                <div class="slds-form__item">
+                                    <!-- Prepared By: <sales rep first and last name> -->
+                                    <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal slds-form-element_1-col ">
+                                        <div class="slds-form-element__control">
+                                            <apex:outputText styleClass="slds-form-element__static" value="{!IF(quote.DAT_Contract_Type__c=='Evergreen' , Evergreen , nonEvergreen)}"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <apex:outputPanel >
+                            <!-- Title : New package or Amendment-->
+                            <apex:variable var="type_Quote" value="New Package Details" />
+                            <apex:variable var="type_Amendment" value="Amendment Details" />
+                            <apex:outputPanel styleClass="slds-text-heading_medium " style=" color: #0064BE;font-weight: bold;">
+                                {!IF(quote.SBQQ__Type__c == 'Quote' , type_Quote , type_Amendment)}
+                            </apex:outputPanel>
+                            <div style="margin-right:15px;margin-left:15px">
+                                <table class="slds-table slds-table_cell-buffer">
+                                    <thead>
+                                        <tr class="">
+                                            <th class="slds-text-color_default slds-text-title_bold ">Description</th>
+                                            <th class="slds-text-color_default slds-text-title_bold ">Quantity </th>
+                                            <th class="slds-text-color_default slds-text-title_bold ">Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <apex:repeat value="{!quote.SBQQ__LineItems__r}" var="line">
+                                            <apex:outputPanel rendered="{!!line.SBQQ__Product__r.SBQQ__Component__c}">
+                                                <tr>
+                                                    <td>
+                                                        <apex:outputText styleclass="slds-text-title_bold" value="{!line.SBQQ__Product__r.name}" />
+                                                        <span>
+                                                            <apex:outputText rendered="{!IF(ISNULL(line.Amendment_Action__c) , false , true)}" value=" [{!line.Amendment_Action__c}]"
+                                                            />
+                                                        </span>
+
+                                                        <br/>
+                                                        <apex:outputText styleclass="slds-text-title_bold" rendered="{!IF(ISNULL(line.DAT_Applied_Promotion__c) , false , true)}"
+                                                            value="{!line.DAT_Applied_Promotion__c}" />
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+
+                                                </tr>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel rendered="{!line.SBQQ__Product__r.SBQQ__Component__c}">
+                                                <tr>
+                                                    <td>
+                                                        <p>&nbsp;&nbsp; {!line.SBQQ__Product__r.name}
+                                                            <span>
+                                                                <apex:outputText rendered="{!IF(ISNULL(line.Amendment_Action__c) , false , true)}" value=" [{!line.Amendment_Action__c}]"
+                                                                />
+                                                            </span>
+                                                        </p>
+                                                    </td>
+                                                    <td>{!line.SBQQ__Quantity__c}</td>
+                                                    <td>
+                                                        <apex:outputText rendered="{!IF((line.SBQQ__ChargeType__c=='Recurring') , true , false)}">
+                                                            <apex:outputText rendered="{!IF((line.DAT_Monthly_Recurring_Total__c==0) , false , true)}" value="{0, number, currency}">
+                                                                <apex:param value="{!line.DAT_Monthly_Recurring_Total__c}" />
+                                                            </apex:outputText>
+
+                                                        </apex:outputText>
+                                                        <apex:outputText rendered="{!IF((line.SBQQ__ChargeType__c=='One-Time') , true , false)}">
+                                                            <apex:outputText rendered="{!IF((line.DAT_One_Time_Charges__c==0) , false , true)}" value="{0, number, currency}">
+                                                                <apex:param value="{!line.DAT_One_Time_Charges__c}" />
+                                                            </apex:outputText>
+
+                                                        </apex:outputText>
+                                                    </td>
+                                                </tr>
+                                            </apex:outputPanel>
+                                        </apex:repeat>
+                                        <tr style="height: 15px;" />
+                                        <tr class="">
+                                            <td colspan="2" style="text-align: right;">
+                                                <apex:outputText rendered="{!IF(quote.DAT_List_MRC__c !=0 || quote.DAT_Monthly_Recurring_Total__c !=0 , false , true)}">
+                                                    <b>Total Price : </b>
+                                                </apex:outputText>
+                                                <apex:outputText rendered="{!IF(quote.DAT_List_MRC__c !=0 || quote.DAT_Monthly_Recurring_Total__c !=0 , true , false)}">
+                                                    <b>
+                                                        <apex:outputText value="{!IF(quote.SBQQ__Type__c == 'Quote','Standard Monthly Price: ','Your Old Monthly Price: ')}" />
+                                                    </b>
+                                                    <br/>
+                                                    <br/>
+                                                    <b>
+                                                        <apex:outputText value="{!IF(quote.SBQQ__Type__c == 'Quote' , 'Your Monthly Price: '  , 'Your New Monthly Price: ')}" />
+                                                    </b>
+                                                </apex:outputText>
+                                            </td>
+                                            <td>
+                                                <b>
+                                                    <apex:outputText rendered="{!IF(quote.DAT_List_MRC__c !=0 || quote.DAT_Monthly_Recurring_Total__c !=0 , false , true)}">
+                                                        <apex:outputText value="{0, number, currency}">
+                                                            <apex:param value="{!quote.DAT_One_Time_Charge_Total__c}" />
+                                                        </apex:outputText>
+                                                    </apex:outputText>
+                                                    <apex:outputText rendered="{!IF(quote.DAT_List_MRC__c !=0 || quote.DAT_Monthly_Recurring_Total__c !=0 , true , false)}">
+                                                        <apex:variable var="MRC_Quote" value="{!quote.DAT_List_MRC__c}" />
+                                                        <apex:variable var="MRC_Amendment" value="{!AmendedMRC}" />
+                                                        <apex:variable var="MRC_Total" value="{!quote.DAT_Monthly_Recurring_Total__c}" />
+
+
+                                                        <apex:outputText value="{0, number, currency}">
+                                                            <apex:param value="{!IF(quote.SBQQ__Type__c == 'Quote' , MRC_Quote , MRC_Amendment)}" />
+                                                        </apex:outputText>
+                                                        <br/>
+                                                        <br/>
+                                                        <apex:outputText value="{0, number, currency}">
+                                                            <apex:param value="{!IF(quote.SBQQ__Type__c == 'Amendment' , MRC_Quote , MRC_Total)}" />
+                                                        </apex:outputText>
+                                                    </apex:outputText>
+                                                </b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <apex:repeat value="{!quote.SBQQ__LineItems__r}" var="line">
+                                    <div class="slds-rich-text-editor__output slds-p-bottom_small" style="width:500px;">
+                                        <apex:outputText style="width:60px;" escape="false" value="{!line.SBQQ__product__r.SBQQ__Specifications__c}" />
+                                    </div>
+                                </apex:repeat>
+                            </div>
+                        </apex:outputPanel>
+                        <div class="slds-p-around_x-small" align="right">
+                            <apex:commandButton id="cancel" styleClass="slds-button slds-button_neutral" value="Cancel" action="{!cancel}" />
+                            <apex:commandButton id="next" styleClass="slds-button slds-button_neutral" value="Next" action="{!quoteDetail}" />
+                        </div>
+                    </apex:form>
+                </div>
+            </div>
+
+        </apex:define>
+    </apex:composition>
+</apex:page>

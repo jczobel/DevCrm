@@ -1,0 +1,12 @@
+<apex:page StandardController="Account" recordSetVar="Accounts" contentType="text/xml" showHeader="false" sidebar="false" cache="false">
+
+
+<html xmlns="http://www.w3.org/1999/html" xml:lang="en" lang="en">
+<response>
+<apex:repeat value="{!Accounts}" var="eachAccount">
+ <Account id="{!eachAccount.id}" name="{!eachAccount.name}"></Account>
+
+</apex:repeat> 
+</response>
+</html>
+</apex:page>

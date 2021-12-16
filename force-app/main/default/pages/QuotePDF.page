@@ -1,0 +1,281 @@
+<apex:page showHeader="false" applyBodyTag="false" renderAs="pdf" controller="QuotePDFController">
+
+    <head>
+        <style type="text/css">
+            section {
+                page-break-inside: avoid;
+            }
+
+            ul {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
+
+            li {
+                padding: 4px;
+                margin-left: 2px;
+            }
+
+            th,
+            td {
+                width: 25%;
+                border-bottom: 1px solid #ddd;
+                padding: 8px;
+                vertical-align: top;
+            }
+
+            #customers {
+                font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            #customers td,
+            #customers th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            #customers th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+            }
+
+            header #branding {
+                float: left;
+                margin: 0;
+                padding: 0;
+            }
+
+            header #orgInfo {
+                float: left;
+                margin: 0;
+                padding: 0;
+            }
+
+            header #title {
+                float: right; //margin-bottom:50px;
+                //padding-bottom:15px;
+            }
+
+            .container {
+                width: 80%;
+                margin: auto;
+                overflow: hidden;
+            }
+
+            .section #customerInfo {
+                padding: 10px;
+            }
+
+            .page-break {
+                page-break-after: always;
+                page-break-inside: avoid;
+                clear: both;
+            }
+
+            .page-break-before {
+                page-break-before: always;
+                page-break-inside: avoid;
+                clear: both;
+            }
+        </style>
+    </head>
+
+    <body rendered="{!showquote}">
+        <!--Logo -->
+        <header>
+            <div class="container">
+                <div id="branding">
+                    <apex:image id="theImage" value="{!$Resource.DATLogo}" />
+                </div>
+                <div id="title">
+                    <h1> Quote : {!quote.Name} </h1>
+                </div>
+            </div>
+        </header>
+        <section id="orgInfo">
+            <div class="container">
+                <br/> {!$Organization.Name}
+                <br/> {!$Organization.Street}
+                <br/> {!$Organization.City}, {!$Organization.State}&nbsp;{!$Organization.PostalCode}&nbsp; {!$Organization.Country}
+                <br/>
+            </div>
+
+
+        </section>
+
+
+        <section id="customerInfo">
+            <div class="container">
+                <!--Quote Name and Account -->
+                <h3>Prepared for: {!quote.SBQQ__Account__r.name} </h3>
+
+                <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td style="width:50%">
+                            <!--Owner Information -->
+                            <div class="" rendered="{!showquote}">
+                                <font face="Arial">
+                                    <br/> {!quote.owner.name}
+                                    <br/> Phone: {!quote.owner.phone}
+                                    <br/> Fax:
+                                    <br/> Email: {!quote.owner.email}
+                                    <br/>
+                                    <br/> Offer Valid Through:
+                                    <apex:outputText value=" {0,date,EEE MMM d, yyyy}">
+                                        <apex:param value="{!quote.SBQQ__ExpirationDate__c}" />
+                                    </apex:outputText>
+                                    <br/>
+                                    <span>Accepted On: </span>
+                                    <apex:outputField value=" {!quote.Quote_Accepted_On__c}" />
+                                </font>
+                            </div>
+                        </td>
+                        <td style="width:50%">
+                            <!--Three Contact Information -->
+                            <div class="" rendered="{!showquote}">
+                                <font face="Arial">
+                                    <br/> Signer: {!quote.Agreement_Signer__r.name}
+                                    <br/> Billing Contact: {!quote.Billing_Contact__r.name}
+                                    <br/> Freight Matching Contact: {!quote.Freight_Matching_Contact__r.name}
+                                    <br/>
+                                </font>
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="width:100%">
+                            <!--Quote Term-->
+                            <div class="">
+                                <br/> Term:
+                                <apex:outputField label="Term" value="{!quote.DAT_Contract_Type__c}" />
+                                <apex:outputText value=". This is a recurring month-to-month subscription" rendered="{!IF(quote.DAT_Contract_Type__c ='Evergreen',true,false)}"
+                                />
+                            </div>
+                        </td>
+                    </tr>
+
+
+                </table>
+
+
+
+                <!--Quote Notes-->
+                <div class="">
+                    <br/>Notes:
+                    <br/> {!quote.SBQQ__Notes__c}
+                </div>
+            </div>
+        </section>
+
+
+        <!--Quote Details-->
+        <section id="quoteDetails">
+            <div class="container">
+                <apex:outputPanel rendered="{!showquote}">
+                    <br/>
+
+                    <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th style="width:40%">Description</th>
+                            <th style="width:20%">Quantity</th>
+                            <th style="width:20%">Unit Price</th>
+                            <th style="width:20%">Total Price</th>
+                        </tr>
+                        <apex:repeat value="{!quote.SBQQ__LineItems__r}" var="line">
+                            <apex:outputPanel rendered="{!!line.SBQQ__Product__r.SBQQ__Component__c}">
+                                <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                                    <tr>
+                                        <td style="width:40%">{!line.SBQQ__Product__r.name}</td>
+                                        <td style="width:20%">{!line.SBQQ__Quantity__c}</td>
+                                        <td style="width:20%"></td>
+                                        <td style="width:20%"></td>
+
+                                    </tr>
+                                </table>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!line.SBQQ__Product__r.SBQQ__Component__c}">
+                                <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                                    <tr>
+                                        <td style="width:40%">&nbsp;&nbsp;{!line.SBQQ__Product__r.name}</td>
+                                        <td style="width:20%">{!line.SBQQ__Quantity__c}</td>
+                                        <td style="width:20%"></td>
+                                        <td style="width:20%"></td>
+                                    </tr>
+                                </table>
+                            </apex:outputPanel>
+                        </apex:repeat>
+
+                        <table style="width:100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td colspan="3" style="text-align:right">
+                                    <b>
+                                        Sub total :
+                                        <apex:outputText value="{0,number,currency}">
+                                            <apex:param value="{!quote.SBQQ__CustomerAmount__c}" />
+                                        </apex:outputText>
+                                    </b>
+                                </td>
+                            </tr>
+                        </table>
+                    </table>
+
+                    <div class="page-break-before" />
+                    <apex:repeat value="{!quote.SBQQ__LineItems__r}" var="line">
+                        <div class="slds-rich-text-editor__output slds-p-bottom_small" style="width:500px;">
+                            <apex:outputText style="width:60px;" escape="false" value="{!line.SBQQ__product__r.SBQQ__Specifications__c}" />
+                        </div>
+                    </apex:repeat>
+
+                </apex:outputPanel>
+
+            </div>
+        </section>
+        <!--Term and Condition -->
+        <section id="termandCondtion">
+            <div class="container">
+                <h3>Terms and Conditions</h3>
+                <ul id="services">
+                    <li>
+                        <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                            <img src="/img/checkbox_checked.gif" /> I certify that the information contained in this Agreement is current, accurate, and complete.
+                            I certify I have the authority to enter into this Agreement for the above named business entity.
+                        </div>
+                    </li>
+                    <li>
+                        <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                            <img src="/img/checkbox_checked.gif" /> I have reviewed the current
+                            <a href="https://www.dat.com/web/privacy-policy" target="_blank"> Privacy Policy </a>
+                            and
+                            <a href="https://www.dat.com/web/terms-and-conditions" target="_blank"> Terms &amp; Conditions </a>
+                            of use for this Service and agree to be bound by them, and any updates thereto. All updates shall be posted on the appropriate
+                            DAT web site, mobile application, installed application and/or service offering applicable to
+                            this Service, which is always accessible via the links entitled
+                            <a href="https://www.dat.com/web/terms-and-conditions" target="_blank"> Terms &amp; Conditions </a>
+                            and
+                            <a href="https://www.dat.com/web/privacy-policy" target="_blank"> Privacy Policy</a>.
+                        </div>
+
+                    </li>
+                    <li>
+                        <div class=" slds-p-bottom_medium" style="text-align: justify;">
+                            <img src="/img/checkbox_checked.gif" /> I understand subscription charges will begin on date of activation of Service and shall automatically
+                            renew monthly unless terminated in writing upon 30 days advance written notice to DAT.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+
+
+
+
+
+    </body>
+
+</apex:page>

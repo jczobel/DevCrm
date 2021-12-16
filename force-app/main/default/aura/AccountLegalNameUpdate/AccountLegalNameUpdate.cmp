@@ -1,0 +1,342 @@
+<aura:component controller="AccountLegalNameUpdateController" implements="force:appHostable,lightning:actionOverride" access="global">
+    <aura:attribute name="accountData" type="Account"/>    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="showSave" type="Boolean" />
+    <aura:attribute name="checkToast" type="Boolean" default="false"/>
+    <aura:attribute name="toastmsg" type="String" default=""/>
+    <aura:attribute name="toastType" type="String" default=""/>
+    <aura:attribute name="toastcss" type="String" default=""/>
+    <aura:attribute name="businessType" type="object[]" />
+    
+    <aura:attribute name="accountDataClone" type="Account" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.getRecord}" />
+    <aura:if isTrue="{!v.checkToast}">
+        <div class="slds-notify_container slds-is-relative" id="toastCmp">
+            <div  class="{!v.toastcss}" role="alert">
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small ">{!v.toastmsg}</h2>
+                </div>
+                <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close" >
+                    <span onclick="{!c.closeIcon}">X</span>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+            </div>
+        </div> 
+    </aura:if>
+    
+    
+    <div class="slds-form slds-p-bottom_small">
+        <div class="slds-form__row slds-p-top_medium">
+            <div class="slds-form__item ">
+                <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal slds-form-element_1-col">
+                    <fieldset class="slds-form-element slds-form-element_compound ">
+                        <div class="slds-form-element__row ">
+                            <!--    Account : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Account: </span> 
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static ">
+                                    <ui:outputText value="{!v.accountData.SF_Account_Number__c}"/>  
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Company name : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Company Name: </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <ui:outputText value="{!v.accountData.Name}"/>  
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Company Legal name : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Company Legal name: </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <aura:if isTrue="{!not(empty(v.accountDataClone.LegalName__c))}">
+                                        <ui:outputText value="{!v.accountData.LegalName__c}"/>
+                                        <aura:set attribute="else">
+                                            <ui:inputText value="{!v.accountData.LegalName__c}"/>
+                                        </aura:set>
+                                    </aura:if>       
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--   Buisness type :  -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Buisness type:  </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <aura:if isTrue="{!not(empty(v.accountDataClone.Business_Type__c))}">
+                                        <ui:outputText value="{!v.accountData.Business_Type__c}"/>
+                                        <aura:set attribute="else">
+                                            <ui:inputSelect  aura:id="businessType" class="" />
+                                        </aura:set>
+                                    </aura:if>       
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="slds-form__item ">
+                <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__row">
+                            <!--    Address : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Address: </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <ui:outputText value="{!v.accountData.BillingStreet}"/>  
+                                    <br/><ui:outputText value="{!v.accountData.BillingCity}"/> 
+                                    <br/><ui:outputText value="{!v.accountData.BillingState}"/> 
+                                    <span> - </span> <ui:outputText value="{!v.accountData.BillingPostalCode}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Phone : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Phone: </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <ui:outputText value="{!v.accountData.Phone}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--     -->
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--     -->
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slds-form__row slds-p-top_medium">
+            <div class="slds-form__item ">
+                <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__row">
+                            <span class="slds-form-element__label slds-text-title_bold ">Broker MC: </span>
+                            <div class="slds-form-element__control ">
+                                <div class="slds-form-element__static ">
+                                    <ui:outputText value="{!v.accountData.BrokerMC__c}"/> 
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Intrastate ID -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Intrastate ID: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static">
+                                    <ui:outputText value="{!v.accountData.IntrastateID__c}"/> 
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            <span class="slds-form-element__label slds-text-title_bold ">Federal Tax ID: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static">
+                                    <aura:if isTrue="{!not(empty(v.accountDataClone.FederalID__c))}">
+                                        <ui:outputText value="{!v.accountData.FederalID__c}"/>
+                                        <aura:set attribute="else">
+                                            <ui:inputText value="{!v.accountData.FederalID__c}"/>
+                                        </aura:set>
+                                    </aura:if>   
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="slds-form__item ">
+                <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__row">
+                            <!--   Carrier MC : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Carrier MC: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static slds-text-title_bold"><ui:outputText value="{!v.accountData.CarrierMC__c}"/></div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Instrastate State : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Instrastate State: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static"><ui:outputText value="{!v.accountData.IntrastateIDState__c}"/> </div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="slds-form__item ">
+                <div class="slds-form-element  slds-form-element_readonly slds-form-element_horizontal ">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__row">
+                            <!--   Frieght Forwarder# : -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Frieght Forwarder#: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static slds-text-title_bold"><ui:outputText value="{!v.accountData.FreightForwarder__c}"/></div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            <!--    Broker DOT -->
+                            <span class="slds-form-element__label slds-text-title_bold ">Broker DOT: </span>
+                            <div class="slds-form-element__control">
+                                <div class="slds-form-element__static"><ui:outputText value="{!v.accountData.BrokerDOT__c}"/></div>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-form-element__row">
+                            
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div style="padding-left: 10rem;">
+        <lightning:layout class="slds-align_absolute-center">
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="6" mediumDeviceSize="6" smallDeviceSize="12">
+                <aura:if isTrue="{!v.showSave}">
+                    <lightning:button label="Save" iconName="utility:save" iconPosition="left"  variant="success" onclick="{!c.updateRecord}"/>   
+                </aura:if>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+    <!--  
+    
+    
+    
+    
+    <div class="slds-m-around_none slds-box">
+        <div class="slds-border_bottom">
+            <lightning:layout horizontalAlign="left" multipleRows="true">
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Account : </b><ui:outputText value="{!v.accountData.SF_Account_Number__c}"/>               
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Address : </b><ui:outputText value="{!v.accountData.BillingStreet}"/>       
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Company Name : </b><ui:outputText value="{!v.accountData.Name}"/>       
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>City : </b><ui:outputText value="{!v.accountData.BillingCity}"/>       
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Company Legal name : </b> 
+                    <aura:if isTrue="{!not(empty(v.accountDataClone.LegalName__c))}">
+                        <ui:outputText value="{!v.accountData.LegalName__c}"/>
+                        <aura:set attribute="else">
+                            <ui:inputText value="{!v.accountData.LegalName__c}"/>
+                        </aura:set>
+                    </aura:if>       
+                </lightning:layoutItem> 
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>State : </b><ui:outputText value="{!v.accountData.BillingState}"/>       
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Buisness type : </b> 
+                    -->
+    <!-- <aura:if isTrue="{!not(empty(v.accountDataClone.Business_Type__c))}">
+                        <ui:outputText value="{!v.accountData.Business_Type__c}"/>
+                        <aura:set attribute="else">
+                            <ui:inputSelect  aura:id="businessType" class="slds-select slds-size_1-of-3" />
+                        </aura:set>
+                    </aura:if>    
+                    --><!--
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Zip : </b><ui:outputText value="{!v.accountData.BillingPostalCode}"/>       
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12"/>
+                
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                    <b>Phone : </b><ui:outputText value="{!v.accountData.Phone}"/>
+                </lightning:layoutItem>            
+            </lightning:layout>
+        </div>
+        
+        <lightning:layout horizontalAlign="left" multipleRows="true">
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Broker MC : </b><ui:outputText value="{!v.accountData.BrokerMC__c}"/>    
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Carrier MC : </b><ui:outputText value="{!v.accountData.CarrierMC__c}"/>    
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Frieght Forwarder# : </b><ui:outputText value="{!v.accountData.FreightForwarder__c}"/>    
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Intrastate ID : </b><ui:outputText value="{!v.accountData.IntrastateID__c}"/>    
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Instrastate State : </b><ui:outputText value="{!v.accountData.IntrastateIDState__c}"/>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Broker DOT :</b><ui:outputText value="{!v.accountData.BrokerDOT__c}"/>
+            </lightning:layoutItem>
+            
+            <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="4" mediumDeviceSize="4" smallDeviceSize="12">
+                <b>Federal Tax ID : </b>
+                <aura:if isTrue="{!not(empty(v.accountDataClone.FederalID__c))}">
+                    <ui:outputText value="{!v.accountData.FederalID__c}"/>
+                    <aura:set attribute="else">
+                        <ui:inputText value="{!v.accountData.FederalID__c}"/>
+                    </aura:set>
+                </aura:if>       
+            </lightning:layoutItem>
+            
+        </lightning:layout>
+        
+        <div style="padding-left: 10rem;">
+            <lightning:layout class="slds-align_absolute-center">
+                <lightning:layoutItem flexibility="grow" padding="around-small" size="12" largeDeviceSize="6" mediumDeviceSize="6" smallDeviceSize="12">
+                    <aura:if isTrue="{!v.showSave}">
+                        <lightning:button label="Save" iconName="utility:save" iconPosition="left"  variant="success" onclick="{!c.updateRecord}"/>   
+                    </aura:if>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+        
+    </div>
+ -->   
+</aura:component>

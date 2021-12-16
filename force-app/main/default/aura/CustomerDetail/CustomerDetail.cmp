@@ -1,0 +1,289 @@
+<aura:component controller="CustomerDetailController" implements="force:appHostable,lightning:actionOverride"
+  access="global">
+  <aura:attribute name="accountData" type="Account" />
+  <aura:attribute name="accountDataClone" type="Account" />
+  <aura:attribute name="quoteData" type="SBQQ__Quote__c" />
+
+  <aura:attribute name="recordId" type="String" />
+  <aura:attribute name="quoteId" type="String" />
+  <aura:attribute name="fedId" type="String" />
+  <aura:attribute name="isValid" type="Boolean" />
+  <aura:attribute name="showSave" type="Boolean" default="false" />
+  <aura:attribute name="checkToast" type="Boolean" default="false" />
+  <aura:attribute name="toastmsg" type="String" default="" />
+  <aura:attribute name="toastType" type="String" default="" />
+  <aura:attribute name="toastcss" type="String" default="" />
+  <aura:attribute name="businessType" type="object[]" />
+
+  <aura:registerEvent name="lightningAppExternalEvent" type="c:lightningAppExternalEvent" />
+
+  <aura:handler name="init" value="{!this}" action="{!c.getRecord}" />
+
+
+  <!-- SLDS Grid-->
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-6 slds-text-title_bold slds-p-left_xx-large slds-p-right_xx-large">
+      <span>Account #:</span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 slds-text-title_bold">
+      <div>
+        <ui:outputText value="{!v.accountData.SF_Account_Number__c}" />
+      </div>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-text-title_bold slds-p-left_xx-large slds-p-right_xx-large">
+      <span>Address: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 slds-text-title_bold ">
+      <ui:outputText value="{!v.accountData.BillingStreet}" />
+      <br />
+      <ui:outputText value="{!v.accountData.BillingCity}" />
+      <span>, </span>
+      <ui:outputText value="{!v.accountData.BillingState}" />
+      &nbsp;
+      <ui:outputText value="{!v.accountData.BillingPostalCode}" />
+    </div>
+  </div>
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Company Name: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <div>
+        <ui:outputText value="{!v.accountData.Name}" />
+      </div>
+    </div>
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Phone: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6  ">
+      <ui:outputText value="{!v.accountData.Phone}" />
+    </div>
+  </div>
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-6 slds-p-left_xx-large ">
+      <abbr class="slds-required" title="required">*</abbr><span>Company Legal Name: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <div>
+        <div class="slds-form-element__static ">
+          <aura:if isTrue="{!not(empty(v.accountDataClone.LegalName__c))}">
+            <ui:outputText value="{!v.accountData.LegalName__c}" />
+            <aura:set attribute="else">
+              <ui:inputText value="{!v.accountData.LegalName__c}" class="slds-required" required="required" />
+              <!--Lightning:input type ="text" value="{!v.accountData.LegalName__c}" class="slds-required" required="true"/-->
+            </aura:set>
+          </aura:if>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slds-grid slds-p-around_xx-small slds-border_bottom">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large slds-p-right_xx-large">
+      <abbr class="slds-required" title="required">*</abbr> <span>Business Type: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <div>
+        <aura:if isTrue="{!not(empty(v.accountDataClone.Business_Type__c))}">
+          <ui:outputText value="{!v.accountData.Business_Type__c}" />
+          <aura:set attribute="else">
+            <ui:inputSelect aura:id="businessType" class="slds-required" required="true"
+              change="{!c.onBusinessTypeChange}" />
+          </aura:set>
+        </aura:if>
+      </div>
+    </div>
+  </div>
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Broker MC: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-12 ">
+      <div>
+        <ui:outputText value="{!v.accountData.BrokerMC__c}" />
+      </div>
+    </div>
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Carrier MC: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-12  ">
+      <ui:outputText value="{!v.accountData.CarrierMC__c}" />
+    </div>
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Freight Forwarder #:</span>
+    </div>
+    <div class="slds-col slds-size_2-of-12  ">
+      <ui:outputText value="{!v.accountData.FreightForwarder__c}" />
+    </div>
+  </div>
+
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Intrastate ID: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-12 ">
+      <div>
+        <ui:outputText value="{!v.accountData.IntrastateID__c}" />
+      </div>
+    </div>
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Intrastate State: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-12  ">
+      <ui:outputText value="{!v.accountData.IntrastateIDState__c}" />
+    </div>
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Broker DOT:</span>
+    </div>
+    <div class="slds-col slds-size_2-of-12  ">
+      <ui:outputText value="{!v.accountData.BrokerDOT__c}" />
+    </div>
+  </div>
+  <div class="slds-grid slds-p-around_xx-small slds-border_bottom">
+    <div class="slds-col slds-size_2-of-12 slds-p-left_xx-large">
+      <span>Federal Tax ID: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-12">
+      <aura:if isTrue="{!not(empty(v.accountData.FederalID__c))}">
+        <ui:outputText value="{!v.accountData.FederalID__c}" />
+
+        <aura:set attribute="else">
+          <lightning:input aura:id="fedIdInput" variant="label-hidden" type="text" value="{!v.fedId}"
+            onchange="{!c.showSaveOnChange}" onblur="{!c.fedIdOnblur}" placeholder="(optional)"
+            pattern="^[1-9]\d{1,8}|\d{3}-\d{2}-\d{4}|[1-9]\d?-\d{7}$"
+            messageWhenPatternMismatch="Federal Tax ID must be numeric and 9 digits or less" />
+        </aura:set>
+      </aura:if>
+    </div>
+    <div class="slds-col slds-size_2-of-12  slds-p-left_xx-large ">
+      <span>Carrier DOT:</span>
+    </div>
+    <div class="slds-col slds-size_2-of-12  ">
+      <ui:outputText value="{!v.accountData.CarrierDOT__c}" />
+    </div>
+
+  </div>
+
+  <!--Contact Detail Title-->
+  <div class="slds-p-around_xx-small" style="font-weight:bold; font-size: 1rem;">
+    <h2>
+      Contact Details
+    </h2>
+
+  </div>
+
+  <!-- Billing Contact / Agreement Signer-->
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-2 slds-text-title_bold  slds-p-left_xx-large ">
+      <span>Billing Contact </span>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-text-title_bold slds-p-left_xx-large ">
+      <span>Agreement Signer </span>
+    </div>
+  </div>
+  <!--Name -->
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Name: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <ui:outputText value="{!v.quoteData.Billing_Contact__r.FirstName}" />
+      &nbsp;
+      <ui:outputText value="{!v.quoteData.Billing_Contact__r.LastName}" />
+    </div>
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Name: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6  ">
+      <ui:outputText value="{!v.quoteData.Agreement_Signer__r.FirstName}" />
+      &nbsp;
+      <ui:outputText value="{!v.quoteData.Agreement_Signer__r.LastName}" />
+
+    </div>
+  </div>
+  <!--Phone Number-->
+  <div class="slds-grid slds-p-around_xx-small">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Phone #: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <ui:outputText value="{!v.quoteData.Billing_Contact__r.Phone}" />
+    </div>
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Phone #: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6  ">
+      <ui:outputText value="{!v.quoteData.Agreement_Signer__r.Phone}" />
+    </div>
+  </div>
+  <!--Primary email -->
+  <div class="slds-grid slds-p-around_xx-small ">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <abbr class="slds-required" title="required">*</abbr><span>Primary Billing Email Address: </span>
+    </div>
+    <div class="slds-col slds-size_1-of-4 ">
+      <div class="slds-form-element__static ">
+        <lightning:input aura:id="primaryBillingEmailInput" variant="label-hidden" type="email"
+          value="{!v.accountData.PrimaryBillingEmailAddress__c}" onchange="{!c.showSaveOnChange}" />
+      </div>
+    </div>
+  </div>
+  <!--Secondary email -->
+  <div class="slds-grid slds-p-around_xx-small ">
+    <div class="slds-col slds-size_1-of-6  slds-p-left_xx-large ">
+      <span>Secondary Billing Email Address: </span>
+    </div>
+    <div class="slds-col slds-size_1-of-4 ">
+      <div>
+        <div class="slds-form-element__static ">
+          <lightning:input aura:id="secondaryBillingEmailInput" variant="label-hidden" type="email"
+            value="{!v.accountData.SecondaryBillingEmailAddress__c}" onchange="{!c.showSaveOnChange}" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Address-->
+  <div class="slds-grid slds-p-around_xx-small slds-border_bottom">
+    <div class="slds-col slds-size_1-of-6 slds-p-left_xx-large slds-p-right_xx-large">
+      <span>Billing Address: </span>
+    </div>
+    <div class="slds-col slds-size_2-of-6 ">
+      <ui:outputText value="{!v.accountData.BillingStreet}" />
+      <br />
+      <ui:outputText value="{!v.accountData.BillingCity}" />
+      <span>, </span>
+      <ui:outputText value="{!v.accountData.BillingState}" />
+      &nbsp;
+      <ui:outputText value="{!v.accountData.BillingPostalCode}" />
+    </div>
+  </div>
+
+  <!-- SLDS Grid-->
+  <aura:if isTrue="{!v.checkToast}">
+    <div class="slds-notify_container slds-is-relative" id="toastCmp">
+      <div class="{!v.toastcss}" role="alert">
+        <div class="slds-notify__content">
+          <h2 class="slds-text-heading_small ">{!v.toastmsg}</h2>
+        </div>
+        <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+          <span onclick="{!c.closeIcon}">X</span>
+          <span class="slds-assistive-text">Close</span>
+        </button>
+      </div>
+    </div>
+  </aura:if>
+
+  <div>
+    <aura:if isTrue="{!v.showSave}">
+      <lightning:layout horizontalAlign="end">
+        <lightning:layoutItem padding="around-small">
+          <lightning:button label="Save" iconName="utility:save" iconPosition="left" variant="brand"
+            onclick="{!c.updateRecord}" />
+          <lightning:button label="Cancel" iconName="utility:clear" iconPosition="left" onclick="{!c.cancelSave}" />
+        </lightning:layoutItem>
+      </lightning:layout>
+    </aura:if>
+  </div>
+
+</aura:component>
